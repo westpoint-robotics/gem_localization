@@ -1,29 +1,29 @@
 <launch>
 
-    <arg name="bag_file" default="/home/user1/Data/ssd/ay2019/gem_nav_odom_2019-06-21-11-26-44/gem_e2_2019-06-21-11-26-44.bag"/>
-    <arg name="pcap_file" default="/home/user1/Data/ssd/ay2019/pcaps/vlp64_2019_06_21_11_26.pcap"/>
+    <arg name="bag_file1" default="/home/user1/Data/ssd/ay2019/gem_nav_odom_2019-06-21-11-26-44/gem_e2_2019-06-21-11-26-44.bag"/>
+    <arg name="bag_file2" default="/home/user1/Data/gem_nav_odom_2019-06-21-11-45-34/gem_nav_odom_2019-06-21-11-45-34.bag"/>
+    <arg name="bag_file3" default="/home/user1/Data/gem_nav_odom_2019-06-21-11-26-44/gem_e2_2019-06-21-11-26-44.bag"/>
+    <arg name="pcap_file1" default="/home/user1/Data/ssd/ay2019/pcaps/vlp64_2019_06_21_11_26.pcap"/>
+    <arg name="pcap_file2" default="/home/user1/Data/pcaps/vlp64_2019_06_21_11_45.pcap"/>
 
-    <node pkg="rosbag" type="play" name="player" output="screen" args="--clock -l $(arg bag_file)"/>
+    <node pkg="rosbag" type="play" name="player" output="screen" args="--clock -l $(arg bag_file3)"/>
 
-    <!-- Start Velodyne Lidar and reduce to 2d scan -->
-    <include file="$(find gem_localizer)/launch/velodyne_dml.launch"/>
+    <!--     Convert magnetic vector in magnetic headings in degrees. Just for us humans to see. TODO This appears to not work.
+    <node pkg="gem_localization" type="imu_filter.py" name="bearingIMU" output="screen" ns="localization">
+        <remap from="magnetic" to="/localization/magnetic"/>
+        <remap from="imu_raw" to="/localization/imu/data"/>   
+    </node>   -->
 
-    <node name="pointcloud_to_laserscan" pkg="pointcloud_to_laserscan" type="pointcloud_to_laserscan_node">
+    <!-- Start Velodyne Lidar and reduce to 2d scan
+    <include file="$(find gem_localization)/launch/velodyne_dml.launch"/>
 
-        <remap from="cloud_in" to="/lidar/vl_points_0"/>
-        <param name="output_frame_id" value="/velodyne"/>    
-        <param name="min_height" value="-1"/>
-        <param name="max_height" value="3"/>
-        <param name="angle_min" value="-3.14159"/>
-        <param name="angle_max" value="3.14159"/>
-        <param name="scan_time" value="1/1000.0"/>
-        <param name="range_min" value="0"/>
-        <param name="range_max" value="50"/>
-        
-    </node>    
-
+    <include file="$(find gem_localization)/launch/velodyne_bringup.launch">
+        <arg name="pcap" value="pcap_file2" />
+    </include>       -->
 
 
+
+    <!--
   <node pkg="rf2o_laser_odometry" type="rf2o_laser_odometry_node" name="rf2o_laser_odometry" output="screen">
     <param name="laser_scan_topic" value="/scan"/>              # topic where the lidar scans are being published
     <param name="odom_topic" value="/odom_rf2o" />              # topic where tu publish the odometry estimations
@@ -34,8 +34,7 @@
     <param name="verbose" value="true" />                       # verbose
   </node>
   
-    <!--
-    <include file="$(find gem_localizer)/launch/hector_odomMapping.launch"/>
+    <include file="$(find gem_localization)/launch/hector_odomMapping.launch"/>
     -->
 
 
