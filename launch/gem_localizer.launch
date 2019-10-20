@@ -5,23 +5,33 @@
     <arg name="bag_file3" default="/home/user1/Data/gem_nav_odom_2019-06-21-11-26-44/gem_e2_2019-06-21-11-26-44.bag"/>
     <arg name="pcap_file1" default="/home/user1/Data/ssd/ay2019/pcaps/vlp64_2019_06_21_11_26.pcap"/>
     <arg name="pcap_file2" default="/home/user1/Data/pcaps/vlp64_2019_06_21_11_45.pcap"/>
+    <arg name="pcap_file3" default="/home/user1/Data/pcaps/vlp64_2019_06_21_11_26.pcap"/> 
 
+    <!-- Start playing the bag files from recorded run    --> 
     <node pkg="rosbag" type="play" name="player" output="screen" args="--clock -l $(arg bag_file3)"/>
+
+    <!-- Start Velodyne Lidar and reduce to 2d scan  -->
+    <include file="$(find gem_localization)/launch/velodyne_bringup.launch">
+        <arg name="pcap" value="$(arg pcap_file3)" />
+    </include>  
+         
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~ Robot Model ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <group ns="robot_model">
+    <node name="robot_state" pkg="robot_state_publisher" type="robot_state_publisher">
+        <param name="publish_frequency" value="2" />
+        <param name="future_date_fixed_transforms" value="1.0" />
+    </node>
+    <param name="robot_description" textfile="$(find gem_localization)/urdf/gem_e2.urdf" />
+  </group> 
+
+
+
 
     <!--     Convert magnetic vector in magnetic headings in degrees. Just for us humans to see. TODO This appears to not work.
     <node pkg="gem_localization" type="imu_filter.py" name="bearingIMU" output="screen" ns="localization">
         <remap from="magnetic" to="/localization/magnetic"/>
         <remap from="imu_raw" to="/localization/imu/data"/>   
     </node>   -->
-
-    <!-- Start Velodyne Lidar and reduce to 2d scan
-    <include file="$(find gem_localization)/launch/velodyne_dml.launch"/>
-
-    <include file="$(find gem_localization)/launch/velodyne_bringup.launch">
-        <arg name="pcap" value="pcap_file2" />
-    </include>       -->
-
-
 
     <!--
   <node pkg="rf2o_laser_odometry" type="rf2o_laser_odometry_node" name="rf2o_laser_odometry" output="screen">
