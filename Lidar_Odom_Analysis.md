@@ -8,62 +8,39 @@ gem_e2_2019-06-21-11-26-44.bag
 - Terminal 3: Run the command 'rviz'
 SimpleScreenRecorder was installed and recorded the three terminals and rviz.
 
-## These numbers map to:  
-Referencing:   
-https://github.com/astuff/pacmod1_2_dbc/blob/master/as_pacmod_v2.dbc  
+## Params used:
+Throughout the experiment many parameters were changed, mostly pointcloud_to_laserscan.  
+The gem_localization repository was commited and pushed with a hash of 7b96e5ccfe6d13263584e3fa4e461647c9271b25.  
 
-TURN_RPT, SHIFT_RPT, ACCEL_RPT, GLOBAL_RPT, BRAKE_RPT, STEERING_RPT_1, VEHICLE_SPEED_RPT, BRAKE_MOTOR_RPT_1, BRAKE_MOTOR_RPT_2, BRAKE_MOTOR_RPT_3, STEERING_MOTOR_RPT_1, STEERING_MOTOR_RPT_2, STEERING_MOTOR_RPT_3  
+Below is the rf2o_laser_odometry.launch file:  
+```html
+<launch>
 
-Message ID: 255 is not found in this reference.
- 
-## This data is published in the following topics.
+  <node pkg="rf2o_laser_odometry" type="rf2o_laser_odometry_node" name="rf2o_laser_odometry" output="screen">
+    <param name="laser_scan_topic" value="/scan"/>        # topic where the lidar scans are being published
+    <param name="odom_topic" value="/odom_rf2o" />              # topic where tu publish the odometry estimations
+    <param name="publish_tf" value="true" />                   # wheter or not to publish the tf::transform (base->odom)
+    <param name="base_frame_id" value="/veh_near_field"/>            # frame_id (tf) of the mobile robot base. A tf transform from the laser_frame to the base_frame is mandatory
+    <param name="odom_frame_id" value="/odom" />                # frame_id (tf) to publish the odometry estimations    
+    <param name="init_pose_from_topic" value="" /> # (Odom topic) Leave empty to start at point (0,0)
+    <param name="freq" value="6.0"/>                            # Execution frequency.
+    <param name="verbose" value="true" />                       # verbose
+  </node>
+  
+</launch>
+```
 
-|ROSTOPIC|CAN MSG|ID|
-|--------|-------|--|
-|/pacmod/parsed_tx/turn_rpt|TURN_RPT|100|
-|/pacmod/parsed_tx/shift_rpt|SHIFT_RPT|102|
-|/pacmod/parsed_tx/accel_rpt|ACCEL_RPT|104|
-|/pacmod/parsed_tx/global_rpt|GLOBAL_RPT|106|
-|/pacmod/parsed_tx/brake_rpt|BRAKE_RPT|108|
-|/pacmod/parsed_tx/steer_rpt|STEERING_RPT_1|110|
-|/pacmod/parsed_tx/vehicle_speed_rpt|VEHICLE_SPEED_RPT|111|
-|/pacmod/parsed_tx/brake_rpt_detail_1|BRAKE_MOTOR_RPT_1|112|
-|/pacmod/parsed_tx/brake_rpt_detail_2|BRAKE_MOTOR_RPT_2|113|
-|/pacmod/parsed_tx/brake_rpt_detail_3|BRAKE_MOTOR_RPT_3|114|
-|/pacmod/parsed_tx/steer_rpt_detail_1|STEERING_MOTOR_RPT_1|115|
-|/pacmod/parsed_tx/steer_rpt_detail_2|STEERING_MOTOR_RPT_2|116|
-|/pacmod/parsed_tx/steer_rpt_detail_3|STEERING_MOTOR_RPT_3|117|
+## Findings:
+It appears that the lidar is not finding enough features that are stable. For example the laser returns against a hill change significantly as the car moves. Also as the car speeds up and brakes the angle of the Velodyne relevant to the ground changes slightly, thus changing the scan results.   
 
-## These topics published pacmod do not appear to map directly to the above messages
-- /pacmod/as_tx/enable  --> This topic publishes a single bool value. For this run it remained false.
-- /pacmod/as_tx/vehicle_speed  --> This topic appears to publish vehicle speed in m/s.
-- /pacmod/parsed_tx/vin_rpt  --> This topic published the below topic.  
-&nbsp;&nbsp;header:   
-&nbsp;&nbsp;&nbsp;&nbsp;  seq: 2  
-&nbsp;&nbsp;&nbsp;&nbsp;  stamp:   
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    secs: 1561130805  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    nsecs: 430815084  
-&nbsp;&nbsp;&nbsp;&nbsp;  frame_id: "pacmod"  
-&nbsp;&nbsp;mfg_code: "52c"  
-&nbsp;&nbsp;mfg: ''  
-&nbsp;&nbsp;model_year_code: "j"  
-&nbsp;&nbsp;model_year: 0  
-&nbsp;&nbsp;serial: 19216  
+It appears that LiDAR based odom maybe difficult to implement in this environment.  
 
-## The message ID 255 is not accounted for in reference document.
-Below is the /pacmod/can_tx message published with id of 255. These values do not appear to change at all.
+You can watch the final run in the video: LidarOdomAnalsis-2019-10-20_16.40.24.mkv  
+In this video the red boxes are the laser scan points and are what is used to compute odometry.
 
-header:   
-&nbsp;&nbsp; seq: 33129  
-&nbsp;&nbsp; stamp:   
-&nbsp;&nbsp;&nbsp;&nbsp;  secs: 1561130888  
-&nbsp;&nbsp;&nbsp;&nbsp;  nsecs: 769860832  
-&nbsp;&nbsp; frame_id: "0"  
-id: 255  
-is_rtr: False  
-is_extended: False  
-is_error: False  
-dlc: 8  
-data: [53, 50, 99, 106, 0, 75, 16, 0]  
+This video shows the repeated message with rarely updated odom:   
+ERROR: Eigensolver couldn't find a solution. Pose is not updated  
+
+
 
 
