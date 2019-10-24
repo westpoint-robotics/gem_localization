@@ -3,14 +3,15 @@
     <arg name="bag_file1" default="/home/user1/Data/ssd/ay2019/gem_nav_odom_2019-06-21-11-26-44/gem_e2_2019-06-21-11-26-44.bag"/>
     <arg name="bag_file2" default="/home/user1/Data/gem_nav_odom_2019-06-21-11-45-34/gem_nav_odom_2019-06-21-11-45-34.bag"/>
     <arg name="bag_file3" default="/home/user1/Data/gem_nav_odom_2019-06-21-11-26-44/gem_e2_2019-06-21-11-26-44.bag"/>
+    <arg name="bag_file3o" default="/home/user1/Data/AckermanAnalysis/output.bag"/>
     <arg name="pcap_file1" default="/home/user1/Data/ssd/ay2019/pcaps/vlp64_2019_06_21_11_26.pcap"/>
     <arg name="pcap_file2" default="/home/user1/Data/pcaps/vlp64_2019_06_21_11_45.pcap"/>
     <arg name="pcap_file3" default="/home/user1/Data/pcaps/vlp64_2019_06_21_11_26.pcap"/> 
 
-    <!-- Start playing the bag files from recorded run    --> 
-    <node pkg="rosbag" type="play" name="player" output="screen" args="--clock -l $(arg bag_file3)"/>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~ Replay the bag files ~~~~~~~~~~~~~~~~~~~~~~ -->
+    <node pkg="rosbag" type="play" name="player" output="screen" args="--clock -l $(arg bag_file3o)"/>
 
-    <!-- Start Velodyne Lidar and reduce to 2d scan  -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~ Velodyne Lidar and laserscan ~~~~~~~~~~~~~~ -->
     <include file="$(find gem_localization)/launch/velodyne_bringup.launch">
         <arg name="pcap" value="$(arg pcap_file3)" />
     </include>  
@@ -24,29 +25,10 @@
     <param name="robot_description" textfile="$(find gem_localization)/urdf/gem_e2.urdf" />
   </group> 
 
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~ Robot Odom from Speed and Yaw  ~~~~~~~~~~~~ -->
+  <node pkg="gem_localization" type="odom_from_speedometer.py" name="odom_speed" ns="localization"/>
 
-
-
-    <!--     Convert magnetic vector in magnetic headings in degrees. Just for us humans to see. TODO This appears to not work.
-    <node pkg="gem_localization" type="imu_filter.py" name="bearingIMU" output="screen" ns="localization">
-        <remap from="magnetic" to="/localization/magnetic"/>
-        <remap from="imu_raw" to="/localization/imu/data"/>   
-    </node>   -->
-
-    <!--
-  <node pkg="rf2o_laser_odometry" type="rf2o_laser_odometry_node" name="rf2o_laser_odometry" output="screen">
-    <param name="laser_scan_topic" value="/scan"/>              # topic where the lidar scans are being published
-    <param name="odom_topic" value="/odom_rf2o" />              # topic where tu publish the odometry estimations
-    <param name="publish_tf" value="false" />                   # wheter or not to publish the tf::transform (base->odom)
-    <param name="base_frame_id" value="/velodyne0"/>             # frame_id (tf) of the mobile robot base. A tf transform from the laser_frame to the base_frame is mandatory
-    <param name="odom_frame_id" value="/odom" />                # frame_id (tf) to publish the odometry estimations    
-    <param name="freq" value="6.0"/>                            # Execution frequency.
-    <param name="verbose" value="true" />                       # verbose
-  </node>
-  
-    <include file="$(find gem_localization)/launch/hector_odomMapping.launch"/>
-    -->
-
+<include file="$(find gem_localization)/launch/dual_ekf_navsat_example.launch"/>
 
 
 </launch>
