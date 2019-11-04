@@ -43,7 +43,7 @@
   <joint name="base-imu" type="fixed">
     <parent link="base_link"/>
     <child link="imu"/>
-    <origin rpy="0 0 0" xyz="0.770 0 0.320"/>
+    <origin rpy="0 0 -1.571" xyz="0.770 0 0.320"/>
   </joint>
 
   <!-- GPS -->
@@ -51,7 +51,7 @@
   <joint name="rack-gps" type="fixed">
     <parent link="rack_link"/>
     <child link="gps"/>
-    <origin rpy="0 0 0" xyz="-0.35 -0.624 0.025"/>
+    <origin rpy="0 0 -1.571" xyz="-0.35 -0.624 0.025"/>
   </joint>
 
   
