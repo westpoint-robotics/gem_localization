@@ -30,10 +30,19 @@
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~ Robot Odom from Speed and Yaw  ~~~~~~~~~~~~ -->
   <node pkg="gem_localization" type="odom_from_speedometer.py" name="odom_speed" ns="localization"/>
 
-<include file="$(find gem_localization)/launch/dual_ekf_navsat_example.launch"/>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~ Robot State Estimation  ~~~~~~~~~~~~ -->
+  <node pkg="robot_localization" type="ekf_localization_node" name="ekf_se" clear_params="true">
+    <rosparam command="load" file="$(find gem_localization)/params/ekf_geme2.yaml" />
+  </node>
 
+  <node pkg="robot_localization" type="navsat_transform_node" name="navsat_transform_node" clear_params="true">
+    <rosparam command="load" file="$(find gem_localization)/params/navsat_transform_geme2.yaml" />
+    <remap from="gps/fix" to="localization/fix"/>
+    <remap from="imu/data" to="localization/imu/raw"/>
+  </node>
+
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~ Transforms between RTK frame terminonology to ROS frame  ~~~~~~~~~~~~ -->
   <node pkg="tf" type="static_transform_publisher" name="odom_to_near_feild" args="0 0 0 0 0 0 odom near_field 100" />
   <node pkg="tf" type="static_transform_publisher" name="base_link_to_veh_near_field" args="0 0 0 0 0 0 base_link veh_near_field 100" />
-
 
 </launch>
