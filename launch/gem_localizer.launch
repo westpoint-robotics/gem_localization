@@ -31,21 +31,16 @@
   <node pkg="gem_localization" type="odom_from_speedometer.py" name="odom_speed" ns="localization"/>
 
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~ Robot State Estimation  ~~~~~~~~~~~~ -->  
-  <rosparam command="load" file="$(find gem_localization)/params/dual_ekf_navsat_geme2.yaml" />
+  <rosparam command="load" file="$(find gem_localization)/params/ekf_geme2.yaml" />
 
-  <node pkg="robot_localization" type="ekf_localization_node" name="ekf_se_odom" clear_params="true">
-    <remap from="odometry/filtered" to="odometry/filtered_odom"/>
-  </node>
-
-  <node pkg="robot_localization" type="ekf_localization_node" name="ekf_se_map" clear_params="true">
-    <remap from="odometry/filtered" to="odometry/filtered_map"/>
+  <node pkg="robot_localization" type="ekf_localization_node" name="ekf_se" clear_params="true">
   </node>
 
   <node pkg="robot_localization" type="navsat_transform_node" name="navsat_transform" clear_params="true">
     <rosparam command="load" file="$(find gem_localization)/params/navsat_transform_geme2.yaml" />
     <remap from="gps/fix" to="localization/fix"/>
     <remap from="imu/data" to="localization/imu/raw"/>
-    <remap from="odometry/filtered" to="odometry/filtered_odom"/>
+    <remap from="odometry/filtered" to="odometry/filtered"/>
   </node>
 
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~ Transforms between RTK frame terminonology to ROS frame  ~~~~~~~~~~~~ -->
